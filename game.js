@@ -15,7 +15,7 @@ groundImage.src = './assets/ground.png';
 
 const ground = {
   x: 0,
-  y: 300, // position the ground at the bottom of the canvas
+  y: (canvas.height-100), // position the ground at the bottom of the canvas
   width: 100,
   height: 100,
   speed: 5
