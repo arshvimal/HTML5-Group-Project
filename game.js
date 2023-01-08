@@ -4,13 +4,13 @@ const startButton = document.getElementById('startButton');
 const pauseButton = document.getElementById('pauseButton');
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+const bgm = document.getElementById('bgm');
+bgm.loop = true;
 
 // Set up game variables
 let isPlaying = false;
+let isJumping = false;
 let score = 0;
-
-// Set up obstacles
-const obstacles = [];
 let factor = 1;
 let upscale = 2*factor;
 groundPNGPixels = 50*factor;
@@ -25,8 +25,10 @@ const groundImage = new Image();
 groundImage.src = './assets/ground.png';
 const PlayerSpriteSheet = new Image();
 PlayerSpriteSheet.src = './assets/player'+upscale+'x.png';
-const RunParticleSpriteSheet = new Image();
-RunParticleSpriteSheet.src = './assets/runparticle4x.png';
+const Background1Image = new Image();
+Background1Image.src = './assets/Background_01.png';
+const Background2Image = new Image();
+Background2Image.src = './assets/Background_02.png';
 
 const ground = {
   x: 0,
@@ -35,9 +37,15 @@ const ground = {
   height: groundPNGPixels,
 };
 
-
-const runParticle = {
-  width: 16*upscale
+const Background1 = {
+  x: 0,
+  y: 0,
+  speed:1
+}
+const Background2 = {
+  x: 0,
+  y: 0,
+  speed:2
 }
 
 // Set up player
@@ -51,41 +59,69 @@ const player = {
   x: 0,
   y: 0,
   speed: 2,
+  jumpHeight: 60*upscale,
+  jumpHeightVariable: 0,
+  jumpUp: true,
+  jumpSpeed: 2
 };
-player.y = (canvas.height-groundPNGPixels-(48*upscale))
-
-let frameCounter = 0;
-let frameDelay = 24/player.speed;
-
-
+let groundYPosition = (canvas.height-groundPNGPixels-(48*upscale))  + (8*upscale);
+player.y = groundYPosition;
+player.jumpHeight = player.y - player.jumpHeight;
+const frame = {
+  Counter: 0,
+  Delay: 0
+}
+let midAir = 0;
 
 function update() {
     // Check if player is playing
     if (!isPlaying) {
       return;
     }
+
+    if(score>=100 && score<1000){
+      player.speed = 3
+    }
+    if(score>=1000 && score<10000){
+      player.speed = 4
+    }
+    frame.Delay = 24/player.speed;
+    frame.Counter++;
+    if (frame.Counter >= frame.Delay) {
+      player.current = (player.current + 1) % player.total;
+      frame.Counter = 0;
+      score++;
+    }
+
+    player.jumpHeight = groundYPosition - (player.jumpHeightVariable*upscale);
+
     // Update ground position
-  ground.x -= player.speed;
+    ground.x -= player.speed;
+    Background1.x -= Background1.speed;
+    Background2.x -= Background2.speed;
 
-  frameCounter++;
-  if (frameCounter >= frameDelay) {
-    player.current = (player.current + 1) % player.total;
-    frameCounter = 0;
-    score++;
-  }
-
-  // Check if ground is off screen
+    // Check if ground is off screen
     if (ground.x + ground.width < 0) {
         ground.x = 0;
     }
-  
-  }
+    if (Background1.x <= (-canvas.width)) {
+      Background1.x = 0;
+    }
+    if (Background2.x <= (-canvas.width)) {
+      Background2.x = 0;
+     }
+}
   
   // Set up draw function
   function draw() {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
+
+    ctx.drawImage(Background1Image, 0, 0, Background1Image.width, Background1Image.height, Background1.x, 0, canvas.width, canvas.height);
+    ctx.drawImage(Background1Image, 0, 0, Background1Image.width, Background1Image.height, Background1.x + canvas.width, 0, canvas.width, canvas.height);
+    ctx.drawImage(Background2Image, 0, 0, Background2Image.width, Background2Image.height, Background2.x, 0, canvas.width, canvas.height);
+    ctx.drawImage(Background2Image, 0, 0, Background2Image.width, Background2Image.height, Background2.x + canvas.width, 0, canvas.width, canvas.height);
+
     // Draw ground
     let groundend = 0;
     while (true){
@@ -95,9 +131,46 @@ function update() {
       ctx.drawImage(groundImage, ground.x + groundend, ground.y, ground.width, ground.height);
       groundend = groundend + ground.width;
     }
+
+    
     col = player.current % player.PerRow;
-    row = 4; //running
-    ctx.drawImage(PlayerSpriteSheet, col*player.width, row*player.height, player.width, player.height, player.x, player.y + (8*upscale), player.height, player.width)
+    if (isJumping){
+      if (player.y>player.jumpHeight && player.jumpUp){
+        player.y -= player.jumpSpeed;
+        row = 4;
+        col = 3;
+        ctx.drawImage(PlayerSpriteSheet, col*player.width, row*player.height, player.width, player.height, player.x, player.y, player.height, player.width)
+      }
+      if (player.y == player.jumpHeight){
+        if (midAir==10){
+          player.y += player.jumpSpeed;
+        }
+        midAir++;
+        row = 4;
+        col = 4;
+        ctx.drawImage(PlayerSpriteSheet, col*player.width, row*player.height, player.width, player.height, player.x, player.y, player.height, player.width)
+        player.jumpUp = false;
+      }
+      if (player.y<=groundYPosition && !player.jumpUp && player.y!=player.jumpHeight){
+        if (player.y == groundYPosition){
+          isJumping = false;
+          player.jumpUp = true;
+          midAir=0;
+        }
+        else{
+        player.y += player.jumpSpeed;
+        row = 4;
+        col = 4;
+        ctx.drawImage(PlayerSpriteSheet, col*player.width, row*player.height, player.width, player.height, player.x, player.y, player.height, player.width)
+        }
+      }
+    }
+    else {
+      row = 4; //running
+    ctx.drawImage(PlayerSpriteSheet, col*player.width, row*player.height, player.width, player.height, player.x, player.y, player.height, player.width)
+    }
+
+    
     
     ctx.font = '16px Arial';
     ctx.fillText(score, canvas.width - ctx.measureText(score).width - 10, 20);
@@ -105,7 +178,6 @@ function update() {
   
   // Set up game loop
   function loop() {
-    console.log("func loop is running")
     if(!isPlaying){
       return;
     }
@@ -116,26 +188,31 @@ function update() {
   
   // Start game
   function startGame() {
-    console.log("func start is running")
     // Reset game variables
-    isPlaying = true;
+    bgm.currentTime = 0;
+    bgm.play();
+    midAir=0;
+    isPlaying = true; 
+    isJumping = false;
     score = 0;
     ground.x = 0;
+    player.x = 0;
+    player.y = groundYPosition;
     player.current = 0;
+    player.jumpUp = true;
     // Start game loop
     loop();
   }
   function stopGame() {
-    console.log("func stop is running")
     isPlaying = false;
     score = 0;
     ground.x = 0;
     player.current = 0;
+    bgm.pause();
     
   }
 
   function restartGame() {
-    console.log("func restart is running")
     if (isPlaying && startButton.innerHTML === 'Stop Game'){
       stopGame();
     }
@@ -147,10 +224,22 @@ function update() {
   function pauseGame(){
     if (isPlaying && pauseButton.innerHTML === 'Pause'){
       isPlaying = false;
+      bgm.pause();
     }
     else if(!isPlaying && pauseButton.innerHTML === 'Resume'){
       isPlaying = true;
+      bgm.play();
       loop();
+    }
+  }
+
+  function jump(){
+    if(player.y == groundYPosition){
+      isJumping = true;
+      return;
+    }
+    else{
+      return;
     }
   }
 // Add event listener to start button
@@ -174,5 +263,33 @@ pauseButton.addEventListener('click', function() {
   } else {
     pauseGame();
     pauseButton.innerHTML = 'Pause';
+  }
+});
+let keyDownTime = 0;
+let elapsedTime = 0;
+let spaceKeyDown = false;
+
+document.addEventListener('keydown', function(event) {
+  if (event.code === 'Space' && !spaceKeyDown) {
+    keyDownTime = Date.now();
+    spaceKeyDown = true;
+  }
+});
+document.addEventListener('keyup', function(event) {
+  if (event.code === 'Space' && spaceKeyDown) {
+    elapsedTime = Date.now() - keyDownTime;
+    spaceKeyDown = false;
+    console.log(elapsedTime);
+    if(elapsedTime<=80){
+      player.jumpHeightVariable = 40;
+    }
+    if(elapsedTime>80 && elapsedTime<=180){
+      player.jumpHeightVariable = (elapsedTime-(elapsedTime%2))/2;
+    }
+    if(elapsedTime>180){
+      player.jumpHeightVariable = 90;
+    }
+    
+    jump();
   }
 });
