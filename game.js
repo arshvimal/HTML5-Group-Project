@@ -11,15 +11,9 @@ bgm.loop = true;
 let isPlaying = false;
 let isJumping = false;
 let score = 0;
-let factor = 1;
-let upscale = 2*factor;
-groundPNGPixels = 50*factor;
+let upscale = 3;
+groundPNGPixels = 75;
 
-function resizeCanvas() {
-  canvas.width = canvas.width*factor;
-  canvas.height = canvas.height*factor;
-}
-resizeCanvas();
 
 const groundImage = new Image();
 groundImage.src = './assets/ground.png';
@@ -58,11 +52,11 @@ const player = {
   current: 0,
   x: 0,
   y: 0,
-  speed: 2,
+  speed: 3,
   jumpHeight: 60*upscale,
   jumpHeightVariable: 0,
   jumpUp: true,
-  jumpSpeed: 2
+  jumpSpeed: 3
 };
 let groundYPosition = (canvas.height-groundPNGPixels-(48*upscale))  + (8*upscale);
 player.y = groundYPosition;
@@ -80,10 +74,10 @@ function update() {
     }
 
     if(score>=100 && score<1000){
-      player.speed = 3
+      player.speed = 4;
     }
     if(score>=1000 && score<10000){
-      player.speed = 4
+      player.speed = 5;
     }
     frame.Delay = 24/player.speed;
     frame.Counter++;
@@ -141,17 +135,17 @@ function update() {
         col = 3;
         ctx.drawImage(PlayerSpriteSheet, col*player.width, row*player.height, player.width, player.height, player.x, player.y, player.height, player.width)
       }
-      if (player.y == player.jumpHeight){
-        if (midAir==10){
+      if (player.y <= player.jumpHeight){
+        if (midAir==16){
           player.y += player.jumpSpeed;
+          player.jumpUp = false;
         }
         midAir++;
         row = 4;
         col = 4;
         ctx.drawImage(PlayerSpriteSheet, col*player.width, row*player.height, player.width, player.height, player.x, player.y, player.height, player.width)
-        player.jumpUp = false;
       }
-      if (player.y<=groundYPosition && !player.jumpUp && player.y!=player.jumpHeight){
+      if (player.y<=groundYPosition && !player.jumpUp){
         if (player.y == groundYPosition){
           isJumping = false;
           player.jumpUp = true;
