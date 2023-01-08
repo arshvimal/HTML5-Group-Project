@@ -1,0 +1,21 @@
+body {
+    background-color: white;
+  }
+  
+  #gameCanvas {
+    border: 1px solid black;
+  }
+  
+  #startButton {
+    font-size: 20px;
+    color: white;
+    background-color: black;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  
+  #startButton:hover {
+    background-color: darkgray;
+  }
+  
