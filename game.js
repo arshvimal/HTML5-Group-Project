@@ -27,7 +27,7 @@ const player = {
   y: canvas.height / 2,
   width: 20,
   height: 20,
-  speed: 3,
+  speed: 2,
   jumpForce: 100,
   jumping: false
 };
@@ -38,7 +38,7 @@ function update() {
       return;
     }
     // Update ground position
-  ground.x -= 1;
+  ground.x -= player.speed;
 
   // Check if ground is off screen
     if (ground.x + ground.width < 0) {
@@ -54,8 +54,14 @@ function update() {
   
     // Draw ground
     let groundend = 0;
+    while (true){
+      if (groundend >= (canvas.width+ground.width)){
+        break;
+      }
+      ctx.drawImage(groundImage, ground.x + groundend, ground.y, ground.width, ground.height);
+      groundend = groundend + ground.width;
+    }
     
-    ctx.drawImage(groundImage, ground.x, ground.y, ground.width, ground.height);
     
   
   }
