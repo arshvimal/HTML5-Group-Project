@@ -4,6 +4,8 @@ body {
   
   #gameCanvas {
     border: 1px solid black;
+    display: block;
+    margin: auto;
   }
   
   #startButton {
@@ -13,6 +15,20 @@ body {
     border: none;
     padding: 10px 20px;
     cursor: pointer;
+    display: block;
+    margin: auto;
+    margin-top: 10px;
+  }
+  #pauseButton {
+    font-size: 20px;
+    color: white;
+    background-color: black;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    display: none;
+    margin: auto;
+    margin-top: 10px;
   }
   
   #startButton:hover {
