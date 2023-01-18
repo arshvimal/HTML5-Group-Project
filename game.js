@@ -129,7 +129,6 @@ player.originalspeed = player.speed
 let groundYPosition = (canvas.height-groundPNGPixels-144)  + (24);
 player.y = groundYPosition;
 let midAir = 0;
-let barWidth = 0;
 const maxWidth = 100;
 const isdrawBox = false;
 const godMode = false;
@@ -150,7 +149,6 @@ function drawBox(){
   if(!isdrawBox){
     return
   }
-  // inside the checkCollision() function
   ctx.strokeStyle = "red"; // set the color of the rectangle border
   ctx.lineWidth = 2; // set the width of the rectangle border
   ctx.strokeRect(playerBox.x, playerBox.y, playerBox.width, playerBox.height); // draw the player bounding box
@@ -221,7 +219,6 @@ function update() {
         console.log("Godmode enabled");        
       }
       else{
-        deadlyTrash.isSpawned = false;
         player.isDead = true;
       }
       
@@ -231,6 +228,9 @@ function update() {
     if (pollution.Counter >= pollution.Delay) {
       pollution.Counter = 0;
       pollution.amount += player.speed;
+    }
+    if (pollution.amount >= maxWidth){
+      player.isDead=true;
     }
 
     if (player.speed <= 4){
@@ -511,7 +511,7 @@ function update() {
   function stopGame() {
     ctx.font = "70px Arial";
     ctx.textAlign = "center";
-    ctx.fillStyle = "black";
+    ctx.fillStyle = "white";
     ctx.fillText("Game Over", canvas.width/2, canvas.height/2);
     ctx.font = "35px Arial";
     ctx.fillText("Score: "+score, canvas.width/2, canvas.height/2+60);
