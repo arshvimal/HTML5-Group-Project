@@ -573,7 +573,6 @@ document.addEventListener('keydown', function(event){if (event.code === 'Delete'
   stopGame();
   gameStarted = false;
 }});
-document.addEventListener
 document.addEventListener('keydown', function(event) {
   if (event.code === 'Space' && !spaceKeyDown) {
     keyDownTime = Date.now();
