@@ -1,9 +1,9 @@
 body {
     background-color: white;
+    margin: 0;
   }
   
   #gameCanvas {
-    border: 1px solid black;
     display: block;
     margin: auto;
   }  
